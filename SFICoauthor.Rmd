@@ -1,0 +1,87 @@
+---
+title: "SFICoauthor"
+output: html_document
+---
+
+```{r Setup}
+library(statnet)
+
+# Network Size?
+.net_size = 25
+
+# Number of Iterations?
+.net_iter = 10
+
+# Number of Subtopics?
+.net_subtopics = 3
+```
+
+```{r Blank Network}
+coau = network.initialize(.net_size, directed = FALSE)
+
+subtopics = letters[1:.net_subtopics]
+coau_att = data.frame(node_id = 1:.net_size, subtopic = sample(subtopics, .net_size, replace = TRUE))
+```
+
+```{r Create Initial Vectors of Order and Eligability}
+n_order = sample.int(.net_size, replace = FALSE)
+n_elig = 1:.net_size
+```
+
+```{r Edge Gen Function}
+add.new.edges = function(conet, node_order = n_order, eligibles = n_elig){
+  for(i in 1:length(n_order)){
+    next_edge = sample(eligibles, 1)
+    add.edge(conet, node_order[i], next_edge)
+    eligibles = eligibles[-which(eligibles == next_edge)]
+  }
+  return(conet)
+}
+```
+
+```{r Iteration}
+edge.gen = function(conet, iter, attributes = coau_att, node_order = n_order, eligibles = n_elig){
+  
+  # Generate first edges if none present
+  if(network.edgecount(conet) == 0){conet = add.new.edges(conet)}
+  
+  for(i in 1:.net_iter){
+    
+  # Are the subtopics a match?
+  current = as.data.frame(as.edgelist.network(conet))
+  current$send_sub = coau_att$subtopic[match(current$V1, coau_att$node_id)]
+  current$rec_sub = coau_att$subtopic[match(current$V2, coau_att$node_id)]
+  current$match = current$send_sub == current$rec_sub
+  
+  # Save the Matches
+  gen_next = current[current$match == TRUE,]
+  
+  # Find all that vectors are not matched
+  no_match = conet%v%"vertex.names"
+  no_match = no_match[!no_match %in% c(gen_next$V1, gen_next$V2)]
+  
+  no_match_vec = vector()
+  for(o in 1:length(no_match)){
+    no_match_vec =  c(get.edgeIDs(conet, no_match[o]), no_match_vec)
+  }
+  
+  delete.edges(conet, no_match_vec)
+  
+  
+  
+  }
+  
+}
+```
+
+
+
+
+
+
+  # Make new network based on matches
+  conet = network(gen_next, directed = FALSE, matrix.type = "edgelist")
+  conet%e%"trust" = paste("trusted on iteration", i)
+  
+  # Add new random edges
+  conet = add.new.edges(conet)
