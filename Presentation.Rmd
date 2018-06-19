@@ -102,7 +102,7 @@ test = networkDynamic(network.list = net_list, create.TEAs = TRUE)
 compute.animation(test)
 
 wid = render.d3movie(test,
-                     vertex.cex = 3,
+                     vertex.cex = 1.2,
                edge.lwd = function(slice){
                  lwd = slice%e%"weight"
                  lwd[lwd == 2] = 0
@@ -126,7 +126,14 @@ wid = render.d3movie(test,
 
 ## Model Details
 
-We used a sudo Temporal Exponential Random Graph Model (TERGM) to model network formation. We start with a number of isolates ($\alpha$), and a set number of iterations (t). At time = t, we randomly allow each node to initiate a connection with another node. If a node already has a partner, it is not eligible to be paired with. At time = t + 1, each of these connections are tested for affinity (trust). If both nodes are of the same sub-type, the connection is solidified as a trusting relationship. If nodes are of a different sub-type, the connection is dropped.
+We used a pseudo Temporal Exponential Random Graph Model (TERGM) to model network formation. We start with a number of isolates ($\alpha$), and a set number of iterations (t). At time = t, we randomly allow each node to initiate a connection with another node. If a node already has a partner, it is not eligible to be paired with. At time = t + 1, each of these connections are tested for affinity (trust). If both nodes are of the same sub-type, the connection is solidified as a trusting relationship. If nodes are of a different sub-type, the connection is dropped.
+
+## We assume
+
+- Individuals meet in dyads, and that those dyads later form groups
+- Individuals meet uniformly at random
+- Individuals pair based on only one criteria
+- Binary trust/no trust
 
 ## Modeling Trust Network Formation
 
@@ -139,7 +146,8 @@ wid
 ## Practical Case - Coauthorship Networks
 
 - Significant time investment
-- Allows for comparison between fields with varying number of sub-fields and coauthorship norms
+- Allows for comparison between fields with varying number of sub-fields and co-authorship norms
+- Allow for matching sub-types across fields, within which sub-types cannot match
 
 ## Future Improvements
 
