@@ -1,12 +1,27 @@
-library(ndtv)
-library(tsna)
-library(htmlwidgets)
+---
+title: "Trusting Collaboration"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(htmlwidgets, quietly=TRUE)
+library(ndtv, quietly=TRUE)
+library(network, quietly=TRUE)
+library(tsna, quietly=TRUE)
+library(scatterplot3d)
 
 num_authors <- 25
-iter = 20
+iter = 15
 adj_list <- matrix(0L, nrow=num_authors, ncol=num_authors)
 diag(adj_list) <- -1
 auth_types <- rbinom(n=num_authors,size=1,prob=0.5)
+```
+
+```{r Data, include=FALSE}
+library(ndtv)
+library(tsna)
+library(htmlwidgets)
 
 cols_without_1 <- function(alist){
     num_cols <- dim(alist)[2]
@@ -81,8 +96,13 @@ library(network)
 net_list = lapply(net_list, FUN = function(x) as.network(x, matrix.type="adjacency", directed=FALSE,ignore.eval=FALSE, names.eval="weight"))
 
 test = networkDynamic(network.list = net_list, create.TEAs = TRUE)
+```
 
-render.d3movie(test,
+```{r Movie}
+compute.animation(test)
+
+wid = render.d3movie(test,
+                     vertex.cex = 3,
                edge.lwd = function(slice){
                  lwd = slice%e%"weight"
                  lwd[lwd == 2] = 0
@@ -95,8 +115,46 @@ render.d3movie(test,
                  },
                vertex.col = auth_types,
                output.mode = 'htmlWidget')
+```
 
 
-ac_net <- as.network(adj_list, matrix.type="adjacency", directed=FALSE,ignore.eval=FALSE,names.eval="weight")
+## When is Trust Important?
 
-plot(ac_net, vertex.col=auth_types, edge.col=adj_list, network.layout = "circle")
+- Investment/Sunk costs are high
+- Relationship failure has consequences
+- Limited number of connections can be formed
+
+## Model Details
+
+We used a sudo Temporal Exponential Random Graph Model (TERGM) to model network formation. We start with a number of isolates ($\alpha$), and a set number of iterations (t). At time = t, we randomly allow each node to initiate a connection with another node. If a node already has a partner, it is not eligible to be paired with. At time = t + 1, each of these connections are tested for affinity (trust). If both nodes are of the same sub-type, the connection is solidified as a trusting relationship. If nodes are of a different sub-type, the connection is dropped.
+
+## Modeling Trust Network Formation
+
+Model with `r num_authors` authors, `r iter` iterations.
+
+```{r Model 1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+wid
+```
+
+## Practical Case - Coauthorship Networks
+
+- Significant time investment
+- Allows for comparison between fields with varying number of sub-fields and coauthorship norms
+
+## Future Improvements
+
+- Remove previously mismatched dyads from the list of potential new connections at each time
+- Allow for multiple sub-types of nodes
+- Allow for multiple sub-types per node
+- Allow for node 'satiation,' meaning nodes will stop looking for new partners once a threshold is reached (collusion within clusters).
+
+## Thank you
+
+```{r Prism, echo=FALSE}
+timePrism(test, at=c(1, 5, 10), displaylabels = FALSE, planes = TRUE)
+```
+
+
+
+
+
