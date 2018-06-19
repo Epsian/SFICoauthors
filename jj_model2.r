@@ -1,3 +1,7 @@
+num_iterations <- 20
+
+adj_lists <- list()
+
 num_authors <- 10
 adj_list <- matrix(0L, nrow=num_authors, ncol=num_authors)
 diag(adj_list) <- -1
@@ -17,7 +21,7 @@ cols_without_1 <- function(alist){
 }
 
 # Time loop
-for (t in 1:20){
+for (t in 1:num_iterations){
     print(paste0("****** Time t=",t))
     # Loop over (shuffled) authors
     shuffled_authors <- sample(1:num_authors)
@@ -65,7 +69,8 @@ for (t in 1:20){
             }
         }
     }
-    print(adj_list)
+    # End of time step. Add to list
+    adj_lists[[t]] <- adj_list
 }
 
 # NOW do network stuff
@@ -74,3 +79,4 @@ library(network)
 ac_net <- as.network(adj_list, matrix.type="adjacency", directed=FALSE,ignore.eval=FALSE,names.eval="weight")
 
 plot(ac_net, vertex.col=auth_types, edge.col=adj_list)
+
