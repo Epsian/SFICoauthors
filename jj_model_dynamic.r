@@ -1,4 +1,7 @@
-num_authors <- 10
+library(ndtv)
+library(tsna)
+
+num_authors <- 25
 iter = 20
 adj_list <- matrix(0L, nrow=num_authors, ncol=num_authors)
 diag(adj_list) <- -1
@@ -79,7 +82,11 @@ net_list = lapply(net_list, FUN = function(x) as.network(x, matrix.type="adjacen
 test = networkDynamic(network.list = net_list, create.TEAs = TRUE)
 
 render.d3movie(test,
-               edge.lwd = 5,
+               edge.lwd = function(slice){
+                 lwd = slice%e%"weight"
+                 lwd[lwd == 2] = 0
+                 return(lwd * 2)
+               },
                edge.col = function(slice){
                  col = slice%e%"weight"
                  col[col == 2] = 0
