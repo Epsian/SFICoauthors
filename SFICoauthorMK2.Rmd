@@ -1,0 +1,114 @@
+---
+title: "SFICoauthor"
+output: html_document
+---
+
+```{r Setup}
+library(statnet)
+
+# Network Size?
+.net_size = 25
+
+# Number of Iterations?
+.net_iter = 3
+```
+
+```{r Blank Network}
+coau = network.initialize(.net_size, directed = FALSE)
+
+coau_att = data.frame(author_id = 1:.net_size,
+                        sub_a = floor(rexp(.net_size, .sub_curve)),
+                        sub_b = floor(rexp(.net_size, .sub_curve)),
+                        sub_c = floor(rexp(.net_size, .sub_curve)),
+                        sub_d = floor(rexp(.net_size, .sub_curve)),
+                        sub_e = floor(rexp(.net_size, .sub_curve)))
+```
+
+```{r Edge Gen Function}
+add.new.edges = function(conet){
+  node_order = sample.int(.net_size, replace = FALSE)
+  eligibles = 1:.net_size
+  
+  for(i in 1:length(node_order)){
+    next_edge = sample(eligibles, 1)
+    add.edge(conet, next_edge, node_order[1])
+    eligibles = eligibles[-which(eligibles == next_edge)]
+    node_order = node_order[-which(node_order == next_edge)]
+  }
+  return(conet)
+}
+```
+
+```{r Iteration}
+edge.gen = function(conet = coau, iter = .net_iter, attributes = author_att){
+  
+  net_list = list()
+  net_list[[1]] = conet
+  if(network.edgecount(conet) == 0){conet = add.new.edges(conet)}
+  
+  for(i in 1:iter){
+    
+  # Add new edges
+  if(i > 1){conet = add.new.edges(conet)}
+    
+  # Match Nodes
+  current = as.data.frame(as.edgelist.network(conet))
+  current$send_top = colnames(coau_att[,2:6])[apply(coau_att[, 2:6],1,which.max)][match(current$V1, coau_att$author_id)]
+  current$rec_top = colnames(coau_att[,2:6])[apply(coau_att[, 2:6],1,which.max)][match(current$V2, coau_att$author_id)]
+  current$perfect_match = current$send_top == current$rec_top
+  
+  # Get Edge IDs
+  for(p in 1:nrow(current)){current[p, "edge_id"] = get.edgeIDs(conet, current[p, 1], current[p, 2])[1]}
+  
+  # delete unmatched edges
+  delete.edges(conet, current$edge_id[current$perfect_match == FALSE])
+  
+  current <<- current
+  
+  # Record when matches were made
+  trust_cut = as.edgelist(conet, attrname = "trust")[,3]
+  trust_cut[is.na(trust_cut)] = paste("Match at iteration", i)
+  conet%e%"trust" = trust_cut
+  
+  # Save to net_list
+  net_list[[i + 1]] = conet
+  
+  }
+  return(net_list)
+}
+```
+
+```{r}
+test_list = edge.gen(coau)
+```
+
+```{r}
+test = test_list[[3]]
+
+edge.colors = test%e%"trust"
+edge.colors[edge.colors == "Match at iteration 1"] = "green"
+edge.colors[edge.colors == "Match at iteration 2"] = "blue"
+edge.colors[edge.colors == "Match at iteration 3"] = "yellow"
+edge.colors[edge.colors == "Match at iteration 4"] = "red"
+edge.colors[edge.colors == "Match at iteration 5"] = "black"
+
+vertex.cols = 1:.net_size
+vertex.cols = coau_att$subtopic[match(vertex.cols, coau_att$node_id)]
+vertex.cols = as.character(vertex.cols)
+vertex.cols[vertex.cols == "a"] = "red"
+vertex.cols[vertex.cols == "b"] = "blue"
+vertex.cols[vertex.cols == "c"] = "yellow"
+
+plot(test, edge.col = edge.colors)
+```
+
+
+
+
+
+  # Make new network based on matches
+  conet = network(gen_next, directed = FALSE, matrix.type = "edgelist")
+  conet%e%"trust" = paste("trusted on iteration", i)
+  
+  # Add new random edges
+  conet = add.new.edges(conet)

@@ -1,12 +1,34 @@
+
+#### Dependencies ####
 library(ndtv)
 library(tsna)
 library(htmlwidgets)
+library(statnet)
 
+#### Setup ####
+
+# How many authors should there be?
 num_authors <- 25
+# How many iterations will be run?
 iter = 20
+# 
 adj_list <- matrix(0L, nrow=num_authors, ncol=num_authors)
 diag(adj_list) <- -1
 auth_types <- rbinom(n=num_authors,size=1,prob=0.5)
+
+# How rare should high proficiency in a subtopic be?
+.sub_curve = .4
+
+#### Create Node Attributes ####
+
+author_att = data.frame(author_id = 1:num_authors,
+                        sub_a = floor(rexp(num_authors, .sub_curve)),
+                        sub_b = floor(rexp(num_authors, .sub_curve)),
+                        sub_c = floor(rexp(num_authors, .sub_curve)),
+                        sub_d = floor(rexp(num_authors, .sub_curve)),
+                        sub_e = floor(rexp(num_authors, .sub_curve)))
+
+#### Create Network ####
 
 cols_without_1 <- function(alist){
     num_cols <- dim(alist)[2]
@@ -75,14 +97,27 @@ for (t in 1:iter){
     net_list[[t]] = print(adj_list)
 }
 
-# NOW do network stuff
-library(network)
+#### Convert Networks to Dynamic Networks ####
 
-net_list = lapply(net_list, FUN = function(x) as.network(x, matrix.type="adjacency", directed=FALSE,ignore.eval=FALSE, names.eval="weight"))
+# Convert matrix to network objects
+net_list = lapply(net_list, FUN = function(x) as.network(x, matrix.type="adjacency", directed=FALSE, ignore.eval=FALSE, names.eval="weight"))
 
-test = networkDynamic(network.list = net_list, create.TEAs = TRUE)
+# Add vertex attributes
+net_list = lapply(net_list, FUN = function(x){
+  set.network.attribute(x, "author_id", author_att$author_id)
+  set.network.attribute(x, "sub_a", author_att$sub_a)
+  set.network.attribute(x, "sub_b", author_att$sub_b)
+  set.network.attribute(x, "sub_c", author_att$sub_c)
+  set.network.attribute(x, "sub_d", author_att$sub_d)
+  set.network.attribute(x, "sub_e", author_att$sub_e)
+  })
 
-render.d3movie(test,
+# Convert to dynamic network
+dynet = networkDynamic(network.list = net_list, create.TEAs = TRUE)
+
+#### Render HTML ####
+
+render.d3movie(dynet,
                edge.lwd = function(slice){
                  lwd = slice%e%"weight"
                  lwd[lwd == 2] = 0
@@ -96,6 +131,7 @@ render.d3movie(test,
                vertex.col = auth_types,
                output.mode = 'htmlWidget')
 
+#### Static Networks ####
 
 ac_net <- as.network(adj_list, matrix.type="adjacency", directed=FALSE,ignore.eval=FALSE,names.eval="weight")
 
