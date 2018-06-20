@@ -4,17 +4,18 @@ output: html_document
 bibliography: SFI Report.bib
 ---
 
-  Researchers tend to co-author with colleges with similar research interests, while they predominately only cite those with differing interests[@ding_scientific_2010]. In this report we test the effect on network structure when various co-authorship propensities are altered. 
+  Researchers tend to co-author with colleges with similar research interests, while they predominately only cite those with differing interests[@ding_scientific_2011]. In this report we test the effect on network structure when various co-authorship propensities are altered. We hypothesize that if co-authors !!!
+  By altering the propensity of simulated researchers to match with co-authors of dissimilar interests, we can model the effect on the overall connectedness of a particular field, and the role individuals with differing distributions of expertise have one that structure. In doing so, we explore and make quantifiable the possible benefits of higher cross-expertise collaboration in the academic sphere.
   
 
 # Literature Review
 
-  Individuals have some agency regarding who they choose to associate with. While the utility of numerous weak ties has been explored[@granovetter_strength_1973], individuals will likely invest more heavily in some relationships over others. The selection of these close associates can be based on homophily[@miller_birds_2001], or necessity[@lee_the_1969]. Regardless of reason, trusting relationships are understood to facilitate the transmission of resources between individuals[@colemann_social_1988].
-  One example of this exists within the co-authorship networks of academia. Co-authorship networks differ structurally across disciplines[@newman_coauthorship_2004]. 
+  Individuals have some agency regarding who they choose to associate with. While the utility of numerous weak ties has been explored[@granovetter_strength_1973], individuals will likely invest more heavily in some relationships over others. The selection of these close associates can be based on homophily[@mcpherson_birds_2001], or necessity[@lee_search_1969]. Regardless of reason, trusting relationships are understood to facilitate the transmission of resources between individuals[@coleman_social_1988].
+  One example of this exists within the co-authorship networks of academia. Co-authorship networks differ structurally across disciplines[@newman_coauthorship_2004], thus the ability for social resources to flow across these networks will also differ.
 
 # Methods
 
-  We start with a number of isolates ($\alpha$), a set number of iterations (t), and !!!. At time = t, we randomly allow each node to initiate a connection with another node. If a node already has a partner, it is not eligible to be paired with. At time = t + 1, each of these connections are tested for affinity (trust). If both nodes are of the same sub-type, the connection is solidified as a trusting relationship. If nodes are of a different sub-type, the connection is dropped, and that tie is removed from the list of eligeable ties in future iterations.
+  We start with a number of isolates ($\alpha$), a set number of iterations (t), and !!!. At time = t, we randomly allow each node to initiate a connection with another node. If a node already has a partner, it is not eligible to be paired with. At time = t + 1, each of these connections are tested for affinity (trust). If both nodes are of the same sub-type, the connection is solidified as a trusting relationship. If nodes are of a different sub-type, the connection is dropped, and that tie is removed from the list of eligible ties in future iterations.
 
 # Results
 ### Model 1
