@@ -39,9 +39,10 @@ choose_partner <- function(node_num, candidates, talent_matrix){
 }
 
 # Testing
-talents <- matrix(c(10,1,0,0,0,11,0,1,11,0,1,0), nrow=4, ncol=3, byrow=TRUE)
-node_num <- 1
-candidates <- c(2,3,4)
-choose_partner(node_num, candidates, talents)
-
-JSDistance(c(10,1,0),c(0,0,11))
+test_distances <- function(){
+    talents <- matrix(c(10,1,0,0,0,11,0,1,11,0,1,0), nrow=4, ncol=3, byrow=TRUE)
+    node_num <- 1
+    candidates <- c(2,3,4)
+    choose_partner(node_num, candidates, talents)
+    JSDistance(c(10,1,0),c(0,0,11))
+}
