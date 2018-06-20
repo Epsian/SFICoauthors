@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+adj_mats.txt
+adj_lists.txt

@@ -2,6 +2,7 @@
 title: "Trust and Suitable Partners"
 output: html_document
 bibliography: SFI Report.bib
+csl: biomed-central.csl
 ---
 
   Researchers tend to co-author with colleges with similar research interests, while they predominately only cite those with differing interests[@ding_scientific_2011]. In this report we test the effect on network structure when various co-authorship propensities are altered. We hypothesize that if co-authors !!!
@@ -28,3 +29,9 @@ bibliography: SFI Report.bib
 # Conclusion
 
 # Referances
+
+---
+nocite: | 
+  @R, @statnet
+...
+
