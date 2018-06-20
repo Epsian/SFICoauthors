@@ -2,7 +2,10 @@ library(ndtv)
 library(tsna)
 library(htmlwidgets)
 
-num_authors <- 25
+adj_lists_filename <- "adj_lists.txt"
+# Clear the file if it already exists
+file.remove(adj_lists_filename)
+num_authors <- 9
 iter = 20
 adj_list <- matrix(0L, nrow=num_authors, ncol=num_authors)
 diag(adj_list) <- -1
@@ -73,6 +76,8 @@ for (t in 1:iter){
         }
     }
     net_list[[t]] = print(adj_list)
+    write(paste0("\nt = ",t,"\n"), file=adj_lists_filename, append=TRUE)
+    write.table(adj_list, file=adj_lists_filename, append=TRUE, row.names=TRUE, col.names=FALSE)
 }
 
 # NOW do network stuff
@@ -97,6 +102,6 @@ render.d3movie(test,
                output.mode = 'htmlWidget')
 
 
-ac_net <- as.network(adj_list, matrix.type="adjacency", directed=FALSE,ignore.eval=FALSE,names.eval="weight")
+#ac_net <- as.network(adj_list, matrix.type="adjacency", directed=FALSE,ignore.eval=FALSE,names.eval="weight")
 
-plot(ac_net, vertex.col=auth_types, edge.col=adj_list, network.layout = "circle")
+#plot(ac_net, vertex.col=auth_types, edge.col=adj_list, network.layout = "circle")
