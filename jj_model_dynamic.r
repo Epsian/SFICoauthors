@@ -5,25 +5,38 @@ library(tsna)
 library(htmlwidgets)
 library(statnet)
 
+source('accept_reject.r')
+
 #### Setup ####
 
 # How many authors should there be?
-num_authors <- 25
+num_authors <- 10
 # How many iterations will be run?
 iter = 20
 
-adj_lists_filename <- "adj_lists.txt"
+# Where to output the time-sliced adjacency matrices
+adj_mats_filename <- "adj_mats.txt"
 
+# Initialize the adjacency matrix
+adj_mat <- matrix(0L, nrow=num_authors, ncol=num_authors)
+# Sets all diagonal elements to -1 so no agent ever matches
+# with themselves
+diag(adj_mat) <- -1
 
-# 
-adj_list <- matrix(0L, nrow=num_authors, ncol=num_authors)
-diag(adj_list) <- -1
+# Initialize the types of the authors (0 or 1)
 auth_types <- rbinom(n=num_authors,size=1,prob=0.5)
+
+# Initialize the authors' thresholds (all start at 0.5)
+thresholds <- rep(0.5, num_authors)
+
+# Parameter determining how quickly authors "lower their standards" if they
+# don't match with anyone
+thresh_decay <- 0.5
 
 # How rare should high proficiency in a subtopic be?
 .sub_curve = .4
 
-#### Create Node Attributes ####
+#### Create Node Interests ####
 
 author_att = data.frame(author_id = 1:num_authors,
                         sub_a = floor(rexp(num_authors, .sub_curve)),
@@ -31,20 +44,48 @@ author_att = data.frame(author_id = 1:num_authors,
                         sub_c = floor(rexp(num_authors, .sub_curve)),
                         sub_d = floor(rexp(num_authors, .sub_curve)),
                         sub_e = floor(rexp(num_authors, .sub_curve)))
+# Convert to matrix
+interest_mat <- data.matrix(author_att)
+# And delete the author_num column
+interest_mat <- interest_mat[,-1]
 
 #### Create Network ####
 
-cols_without_1 <- function(alist){
-    num_cols <- dim(alist)[2]
+cols_without_1 <- function(amat){
+    # Takes in an adjacency matrix and returns the indices
+    # of all columns without any 1s (meaning, all agents
+    # who are not already talking to someone)
+    num_cols <- dim(amat)[2]
     # List of cols
     to_return <- vector('integer')
     for (cur_col in 1:num_cols){
-        col_vec <- alist[,cur_col]
+        col_vec <- amat[,cur_col]
         if (all(col_vec != 1)) {
             to_return <- c(to_return, cur_col)
         }
     }
     return(to_return)
+}
+
+deterministic_match <- function(cur_auth, other_auth, auth_types, adj_mat){
+    # Check the types
+    if (auth_types[cur_auth] == auth_types[other_auth]){
+        print(paste0("Author ",cur_auth," and author ",other_auth," SUCCESSFULLY coauthor!"))
+        return(TRUE)
+        
+    } else {
+        print(paste0("Author ", cur_auth," and author ", other_auth," FAIL to coauthor"))
+        return(FALSE)
+    }
+}
+
+threshold_match <- function(cur_auth, other_auth, interest_mat, thresholds){
+    # Get interest vectors
+    cur_interest <- interest_mat[cur_auth,]
+    other_interest <- interest_mat[other_auth,]
+    # Get threshold
+    cur_threshold <- thresholds[cur_auth]
+    return(accept_link(cur_interest, other_interest, cur_threshold))
 }
 
 net_list = list()
@@ -57,31 +98,31 @@ for (t in 1:iter){
     for (cur_auth in shuffled_authors){
         print(paste0("*** Resolving 1s for author #", cur_auth))
         # First resolve any 1s
-        unresolved <- which(adj_list[cur_auth,] == 1)
+        unresolved <- which(adj_mat[cur_auth,] == 1)
         if (length(unresolved) > 0){
             for (unresolved_ind in unresolved){
-                # Check the types
-                if (auth_types[cur_auth] == auth_types[unresolved_ind]){
-                    print(paste0("Author ",cur_auth," and author ",unresolved_ind," SUCCESSFULLY coauthor!"))
-                    adj_list[cur_auth, unresolved_ind] <- 3
-                    adj_list[unresolved_ind, cur_auth] <- 3
+                # Here we can use different matching rules
+                #matched <- deterministic_match(cur_auth, unresolved_ind, auth_types, adj_mat)
+                matched <- threshold_match(cur_auth, unresolved_ind, thresholds)
+                if (matched){
+                    adj_mat[cur_auth, unresolved_ind] <- 3
+                    adj_mat[unresolved_ind, cur_auth] <- 3
                 } else {
-                    print(paste0("Author ", cur_auth," and author ", unresolved_ind," FAIL to coauthor"))
-                    adj_list[cur_auth, unresolved_ind] <- 2
-                    adj_list[unresolved_ind, cur_auth] <- 2
+                    adj_mat[cur_auth, unresolved_ind] <- 2
+                    adj_mat[unresolved_ind, cur_auth] <- 2
                 }
             }
         }
     }
     for (cur_auth in shuffled_authors){
         # Then form new links, IF this author hasn't been chosen yet
-        if (any(adj_list[cur_auth,] == 1)) {
+        if (any(adj_mat[cur_auth,] == 1)) {
             print(paste0("*** Author ",cur_auth," already chosen. No new links."))
         } else {
             print(paste0("*** Forming new links for author ",cur_auth))
             # Candidates must have 0 with cur_auth AND not have a 1 with anyone else!
-            havent_talked <- which(adj_list[cur_auth,] == 0)
-            not_talking <- cols_without_1(adj_list)
+            havent_talked <- which(adj_mat[cur_auth,] == 0)
+            not_talking <- cols_without_1(adj_mat)
             candidates <- intersect(havent_talked, not_talking)
             print("Candidates:")
             print(candidates)
@@ -93,19 +134,20 @@ for (t in 1:iter){
                     chosen_cand <- sample(candidates, 1)
                 }
                 print(paste0("Author #", cur_auth, " forming link with ",chosen_cand))
-                adj_list[cur_auth, chosen_cand] <- 1
-                adj_list[chosen_cand, cur_auth] <- 1
+                adj_mat[cur_auth, chosen_cand] <- 1
+                adj_mat[chosen_cand, cur_auth] <- 1
             }
         }
     }
-    net_list[[t]] = print(adj_list)
-    write(paste0("\nt = ",t,"\n"), file=adj_lists_filename, append=TRUE)
-    write.table(adj_list, file=adj_lists_filename, append=TRUE, row.names=TRUE, col.names=FALSE)
+    net_list[[t]] = print(adj_mat)
+    write(paste0("\nt = ",t,"\n"), file=adj_mats_filename, append=TRUE)
+    write.table(adj_mat, file=adj_mats_filename, append=TRUE, row.names=TRUE, col.names=FALSE)
 }
 
 #### Convert Networks to Dynamic Networks ####
 
 # Convert matrix to network objects
+net_list_matrix = net_list
 net_list = lapply(net_list, FUN = function(x) as.network(x, matrix.type="adjacency", directed=FALSE, ignore.eval=FALSE, names.eval="weight"))
 
 # Add vertex attributes
