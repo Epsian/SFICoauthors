@@ -123,7 +123,7 @@ dynet = networkDynamic(network.list = net_list, create.TEAs = TRUE)
 
 #### Render HTML ####
 
-render.d3movie(dynet,
+wid = render.d3movie(dynet,
                edge.lwd = function(slice){
                  lwd = slice%e%"weight"
                  lwd[lwd == 2] = 0

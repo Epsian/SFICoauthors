@@ -1,0 +1,29 @@
+---
+title: "Trust and Suitable Partners"
+output: html_document
+bibliography: SFI Report.bib
+---
+
+  In this report we model the 
+  
+
+# Literature Review
+
+  Individuals have some agency regarding who they choose to associate with. While the utility of numerous weak ties has been explored[@granovetter_strength_1973], individuals will likely invest more heavily in some relationships over others. The selection of these close associates can be based on homophily[@miller_birds_2001], or necessity[@lee_the_1969]. Regardless of reason, trusting relationships are understood to facilitate the transmission of resources between individuals[@colemann_social_1988].
+  One example of this exists within the co-authorship networks of academia. Co-authorship networks differ structurally across disciplines[@newman_coauthorship_2004]. Researchers tend to coauthor with colleges wit similar research interests, while they predominately only cite those with differing interests[@ding_scientific_2010].
+
+# Methods
+
+  We used a pseudo Temporal Exponential Random Graph Model (TERGM) to model network formation. We start with a number of isolates ($\alpha$), and a set number of iterations (t). At time = t, we randomly allow each node to initiate a connection with another node. If a node already has a partner, it is not eligible to be paired with. At time = t + 1, each of these connections are tested for affinity (trust). If both nodes are of the same sub-type, the connection is solidified as a trusting relationship. If nodes are of a different sub-type, the connection is dropped.
+
+# Results
+### Model 1
+`r source("jj_model_dynamic.r")`
+#### Example Model with `r num_authors` authors, `r iter` iterations.
+`r wid`
+
+# Discussion
+
+# Conclusion
+
+# Referances
