@@ -5,7 +5,7 @@ library(tsna)
 library(htmlwidgets)
 library(statnet)
 
-source('accept_reject.r')
+source('src/accept_reject.r')
 
 #### Setup ####
 
