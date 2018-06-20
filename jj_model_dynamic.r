@@ -11,6 +11,10 @@ library(statnet)
 num_authors <- 25
 # How many iterations will be run?
 iter = 20
+
+adj_lists_filename <- "adj_lists.txt"
+
+
 # 
 adj_list <- matrix(0L, nrow=num_authors, ncol=num_authors)
 diag(adj_list) <- -1
@@ -95,6 +99,8 @@ for (t in 1:iter){
         }
     }
     net_list[[t]] = print(adj_list)
+    write(paste0("\nt = ",t,"\n"), file=adj_lists_filename, append=TRUE)
+    write.table(adj_list, file=adj_lists_filename, append=TRUE, row.names=TRUE, col.names=FALSE)
 }
 
 #### Convert Networks to Dynamic Networks ####
@@ -133,6 +139,6 @@ render.d3movie(dynet,
 
 #### Static Networks ####
 
-ac_net <- as.network(adj_list, matrix.type="adjacency", directed=FALSE,ignore.eval=FALSE,names.eval="weight")
+#ac_net <- as.network(adj_list, matrix.type="adjacency", directed=FALSE,ignore.eval=FALSE,names.eval="weight")
 
-plot(ac_net, vertex.col=auth_types, edge.col=adj_list, network.layout = "circle")
+#plot(ac_net, vertex.col=auth_types, edge.col=adj_list, network.layout = "circle")
