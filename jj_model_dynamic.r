@@ -10,12 +10,14 @@ source('accept_reject.r')
 #### Setup ####
 
 # How many authors should there be?
-num_authors <- 10
+num_authors <- 9
 # How many iterations will be run?
-iter = 20
+iter <- 50
 
 # Where to output the time-sliced adjacency matrices
 adj_mats_filename <- "adj_mats.txt"
+# Delete if it already exists
+file.remove(adj_mats_filename)
 
 # Initialize the adjacency matrix
 adj_mat <- matrix(0L, nrow=num_authors, ncol=num_authors)
@@ -33,6 +35,16 @@ thresholds <- rep(0.5, num_authors)
 # don't match with anyone
 thresh_decay <- 0.5
 
+# How many co-authors can someone have before they stop matching with
+# anyone
+max_coauthors <- 3
+
+# How many times does someone get rejected before they "take the hint"
+# and give up
+max_rejections <- 3
+# Matrix where M_{i,j} = number of times j rejected i
+rejection_mat <- matrix(0, nrow=num_authors, ncol=num_authors)
+
 # How rare should high proficiency in a subtopic be?
 .sub_curve = .4
 
@@ -44,7 +56,7 @@ author_att = data.frame(author_id = 1:num_authors,
                         sub_c = floor(rexp(num_authors, .sub_curve)),
                         sub_d = floor(rexp(num_authors, .sub_curve)),
                         sub_e = floor(rexp(num_authors, .sub_curve)))
-# Convert to matrix
+# Convert to matrix, rows are authors columns are topics
 interest_mat <- data.matrix(author_att)
 # And delete the author_num column
 interest_mat <- interest_mat[,-1]
@@ -67,6 +79,21 @@ cols_without_1 <- function(amat){
     return(to_return)
 }
 
+set_value <- function(mat, rownum, colnum, value){
+    # Since all the matrices we're working with are symmetric (besides the
+    # interest matrix which is just appended vectors), this ensures that
+    # the matrix never becomes asymmetric...
+    mat[rownum,colnum] <- value
+    mat[colnum,rownum] <- value
+    return(mat)
+}
+
+increment_value <- function(mat, rownum, colnum){
+    mat[rownum,colnum] <- mat[rownum,colnum] + 1
+    mat[colnum,rownum] <- mat[colnum,rownum] + 1
+    return(mat)
+}
+
 deterministic_match <- function(cur_auth, other_auth, auth_types, adj_mat){
     # Check the types
     if (auth_types[cur_auth] == auth_types[other_auth]){
@@ -81,6 +108,8 @@ deterministic_match <- function(cur_auth, other_auth, auth_types, adj_mat){
 
 threshold_match <- function(cur_auth, other_auth, interest_mat, thresholds){
     # Get interest vectors
+    print("interest_mat")
+    print(interest_mat)
     cur_interest <- interest_mat[cur_auth,]
     other_interest <- interest_mat[other_auth,]
     # Get threshold
@@ -103,13 +132,20 @@ for (t in 1:iter){
             for (unresolved_ind in unresolved){
                 # Here we can use different matching rules
                 #matched <- deterministic_match(cur_auth, unresolved_ind, auth_types, adj_mat)
-                matched <- threshold_match(cur_auth, unresolved_ind, thresholds)
+                matched <- threshold_match(cur_auth, unresolved_ind, interest_mat, thresholds)
                 if (matched){
-                    adj_mat[cur_auth, unresolved_ind] <- 3
-                    adj_mat[unresolved_ind, cur_auth] <- 3
+                    adj_mat <- set_value(adj_mat, cur_auth, unresolved_ind, 3)
+                    # set_value does the same thing as these two lines:
+                    #adj_mat[cur_auth, unresolved_ind] <- 3
+                    #adj_mat[unresolved_ind, cur_auth] <- 3
                 } else {
-                    adj_mat[cur_auth, unresolved_ind] <- 2
-                    adj_mat[unresolved_ind, cur_auth] <- 2
+                    # New 2018-06-20: this just resets back to 0, so that
+                    # authors can match again later if they have "lowered
+                    # their standards"
+                    adj_mat <- set_value(adj_mat, cur_auth, unresolved_ind, 0)
+                    # But update the rejection matrix, so that we don't get
+                    # infinite rejections
+                    rejection_mat <- increment_value(rejection_mat, cur_auth, unresolved_ind)
                 }
             }
         }
@@ -123,9 +159,10 @@ for (t in 1:iter){
             # Candidates must have 0 with cur_auth AND not have a 1 with anyone else!
             havent_talked <- which(adj_mat[cur_auth,] == 0)
             not_talking <- cols_without_1(adj_mat)
-            candidates <- intersect(havent_talked, not_talking)
-            print("Candidates:")
-            print(candidates)
+            few_rejections <- which(rejection_mat[cur_auth,] < max_rejections)
+            candidates <- intersect(intersect(havent_talked, not_talking), few_rejections)
+            #print("Candidates:")
+            #print(candidates)
             # Randomly choose one of the candidates, if any
             if (length(candidates) > 0){
                 if (length(candidates) == 1){
@@ -134,8 +171,7 @@ for (t in 1:iter){
                     chosen_cand <- sample(candidates, 1)
                 }
                 print(paste0("Author #", cur_auth, " forming link with ",chosen_cand))
-                adj_mat[cur_auth, chosen_cand] <- 1
-                adj_mat[chosen_cand, cur_auth] <- 1
+                adj_mat <- set_value(adj_mat, cur_auth, chosen_cand, 1)
             }
         }
     }
