@@ -6,6 +6,7 @@ library(htmlwidgets)
 library(statnet)
 
 source('src/accept_reject.r')
+source('src/entropy_calc.r')
 
 #### Setup ####
 
@@ -19,7 +20,9 @@ iter <- 50
 adj_mats_filename <- "adj_mats.txt"
 
 # Delete if it already exists
-file.remove(adj_mats_filename)
+if (file.exists(adj_mats_filename)){
+    file.remove(adj_mats_filename)
+}
 
 # Initialize the adjacency matrix
 adj_mat <- matrix(0L, nrow=num_authors, ncol=num_authors)
@@ -64,6 +67,12 @@ author_att = data.frame(author_id = 1:num_authors,
 interest_mat <- data.matrix(author_att)
 # And delete the author_num column
 interest_mat <- interest_mat[,-1]
+
+# Now we can compute (a) entropies, (b) talent levels, and
+# (c) talent-weighted entropies for each author
+author_ents <- apply(interest_mat, 1, entropy)
+author_talent <- apply(interest_mat, 1, sum)
+author_weighted_ents <- author_ents * author_talent
 
 #### Create Network ####
 
