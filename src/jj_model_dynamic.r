@@ -235,7 +235,8 @@ if (!matrix_only){
 
 if (gen_visuals){
     wid = render.d3movie(dynet,
-               edge.lwd = 2,
+               vertex.cex = 3,
+               edge.lwd = 3,
                edge.col = function(slice){
                    col = slice%e%"weight"
                    col[col == 3] = "green"
@@ -247,7 +248,8 @@ if (gen_visuals){
                                       "Subtopic B:", author_att$sub_b, "<br>",
                                       "Subtopic C:", author_att$sub_c, "<br>",
                                       "Subtopic D:", author_att$sub_d, "<br>",
-                                      "Subtopic E:", author_att$sub_e, "<br>"),
+                                      "Subtopic E:", author_att$sub_e, "<br>",
+                                      "Talent Weighted Diversity:", round(author_weighted_ents, digits = 2), "<br>"),
                output.mode = 'htmlWidget')
 } else {
     wid <- NULL
