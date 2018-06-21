@@ -5,8 +5,8 @@ library(tsna)
 library(htmlwidgets)
 library(statnet)
 
-source('src/accept_reject.r')
-source('src/entropy_calc.r')
+source('accept_reject.r')
+source('entropy_calc.r')
 
 run_model <- function(num_authors=9, iter=50, init_threshold=0.5, thresh_decay=0.5, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE){
 
@@ -65,6 +65,9 @@ interest_mat <- interest_mat[,-1]
 author_ents <- apply(interest_mat, 1, entropy)
 author_talent <- apply(interest_mat, 1, sum)
 author_weighted_ents <- author_ents * author_talent
+
+# And a pairwise similarity matrix
+sim_mat <- 
 
 #### Create Network ####
 
