@@ -1,7 +1,11 @@
 ---
 title: "Trust and Suitable Partners"
-output: html_document
-author: "Jeff Jacobs & Jared Joseph"
+output: 
+  html_document: 
+    theme: readable
+author: | 
+  | Jeff Jacobs, Political Science, Columbia University
+  | Jared Joseph, Sociology, University of California - Davis
 date: "June 21, 2018"
 bibliography: SFI Report.bib
 csl: apa.csl
@@ -20,45 +24,54 @@ csl: apa.csl
 # Methods
 
   We specify the following parameters in out model: 
-  * The number of authors in the model ($N$), 
-  * The number of iterations the model will run ($T$), 
-  * The starting threshold $\sigma_0$ each agent uses to decide if another agent is similar enough in interests to co-author with (so that the individual thresholds $\sigma_i$ for each agent $i$ are equal to $\sigma_0$ at the start of the model),
-  * A decay parameter $\gamma$ indicating how quickly agents will seek out agents who are less similar in interests,
-  * The maximum number of co-authors for any one agent ($c_{max}$),
-  * The max number of times an agent can get rejected by someone before giving up on forming a link with them ($r_{max}$), and
-  * The rate parameter $\lambda$ of the exponential distribution used to determine the talent level in our 5 sub-topics, producing a talent vector $\beta_i$ for each author $i$.
+  - The number of authors in the model ($N$),
+  
+  - The number of iterations the model will run ($T$),
+  
+  - The starting threshold $\sigma_0$ each agent uses to decide if another agent is similar enough in interests to co-author with (so that the individual thresholds $\sigma_i$ for each agent $i$ are equal to $\sigma_0$ at the start of the model),
+  
+  - A decay parameter $\gamma$ indicating how quickly agents will seek out agents who are less similar in interests,
+  
+  - The maximum number of co-authors for any one agent ($c_{max}$),
+  
+  - The max number of times an agent can get rejected by someone before giving up on forming a link with them ($r_{max}$), and
+  
+  - The rate parameter $\lambda$ of the exponential distribution used to determine the talent level in our 5 sub-topics, producing a talent vector $\beta_i$ for each author $i$.
 
 
   The model proceeds as follows. At a given time $t$, we randomly allow each node $p$ to initiate a connection with another node $q$. If a node already has a partner, it is not eligible to be paired with. At time $t + 1$, each of these connections are tested for affinity (trust). If the similarity of $q$'s interests to $p$ (measured as $1-JS(\beta_p,\beta_q)$, where $JS(\dot)$ is the Jensen-Shannon distance) are above $p$'s similarity threshold $\sigma_p$, and if $q$ has not already formed $c_{max}$ other connections, then this connection is solidified as a trusting relationship and an edge is formed between $p$ and $q$. Otherwise, the connection is dropped, and $p$ ``lowers their standards'' by decaying their threshold $\sigma_p$ by a factor of $\gamma$.
 
 # Results
 ### Bridge Example
-#### Example Model with 9 authors, 50 iterations.
+Example Model with $N$ = 9, $T$ = 50 , $\sigma_0$ = 0.75, $\gamma$ = 0.08, $c_{max}$ = 3, $\lambda$ = 3.
 ```{r Bridge Model, message=FALSE, warning=FALSE, include=FALSE}
 source("src/jj_model_dynamic.r")
 def_mod = run_model()
 ```
-Click on the nodes to see their sub-topics!
+Here we see an example random model using the above parameters. At $T$ = 1, we see agents attempting to create a new tie at random (grey tie). As the model progresses, agents decide to either keep that relationship (green tie) given their current $\sigma$ and co-author saturation, or they drop that relationship and start to look elsewhere. Agents may return to an alter they have already talked to at a later point with lower standards, and may form a connection then, but only until the number of attempted connections equals $\lambda$ (3), at which point that alter is removed from the list of potential partners the agent will attempt talking to in the future. 
+
+### Click on the nodes to see their sub-topics and TWD!
+If the pop-up does not appear, zoom in or out on the network and re-select the node.
 `r def_mod$wid`
 
 ### Effect of Lowering Decay Parameter on Betweenness Centrality
 ```{r Decay Lines, message=FALSE, warning=FALSE, include=FALSE}
 source("src/scatter_plots.R")
 ```
-Here we see what happens if agents become more willing to co-author with people with different specialties, seperated by the 'talent' of the agent. To construct the talent metric for a given author $p$, we compute the entropy of their talent vector $H(\beta_p)$ and then multiply this entropy by the 'total talent' $\| \beta_p \|_1 = \sum_{i}(\beta_p)_i$, to produce a 'talent-weighted-diversity' measure $TWD(p) = \|  \beta_p \|_1H(\beta_p)$. We then plot the betweenness centrality of the authors with the lowest, highest, and median TWD scores, for varying levels of 'expectation lowering rates' $\gamma \in \{0.00, 0.01, \dots, 0.19, 0.20\}$. Following the literature, we would expect the most 'effective' coauthorship networks to be those in which the high-TWD authors serve as 'connectors' between subfield clusters. And thus we can read a preliminary result from the plot: that the 'optimal' rate of 'expectation lowering' -- the rate which best facilitates high-TWD authors serving as connectors -- is approximately $\gamma = 0.11$, i.e., an $11\%$ decay after each failed connection.
+Here we see what happens if agents become more willing to co-author with people with different specialties, separated by the 'talent' of the agent. To construct the talent metric for a given author $p$, we compute the entropy of their talent vector $H(\beta_p)$ and then multiply this entropy by the 'total talent' $\| \beta_p \|_1 = \sum_{i}(\beta_p)_i$, to produce a 'talent-weighted-diversity' measure $TWD(p) = \|  \beta_p \|_1H(\beta_p)$. We then plot the betweenness centrality of the authors with the lowest, highest, and median TWD scores, for varying levels of 'expectation lowering rates' $\gamma \in \{0.00, 0.01, \dots, 0.19, 0.20\}$. Following the literature, we would expect the most 'effective' co-authorship networks to be those in which the high-TWD authors serve as 'connectors' between sub-field clusters. And thus we can read a preliminary result from the plot: that the 'optimal' rate of 'expectation lowering' -- the rate which best facilitates high-TWD authors serving as connectors -- is approximately $\gamma = 0.11$, i.e., an $11\%$ decay after each failed connection.
 
-After calibration of the model with the astrophysics coauthorship network, however, we see that astrophysicists essentially exhibit overly-high 'standards', failing to lower their similarity thresholds at a rate which would best allow the emergence of inter-subfield connectors. Expanding from calibration of the toy model with $N = 9$ to calibrating larger coauthorship networks ($N \in \{100, 200, 400, 800\}$), we find that this result continues to hold: the astrophysics coauthorship network 'matches' with networks generated by $\gamma \in [0.05,0.09]$, while the optimal $\gamma$ for uncalibrated networks remains almost identical at $0.11$.
+After calibration of the model with the astrophysics co-authorship network, however, we see that astrophysicists essentially exhibit overly-high 'standards', failing to lower their similarity thresholds at a rate which would best allow the emergence of inter-sub-field connectors. Expanding from calibration of the toy model with $N = 9$ to calibrating larger co-authorship networks ($N \in \{100, 200, 400, 800\}$), we find that this result continues to hold: the astrophysics co-authorship network 'matches' with networks generated by $\gamma \in [0.05,0.09]$, while the optimal $\gamma$ for calibrated networks remains almost identical at $0.11$.
 `r decay_line`
 
 # Discussion
 
-!!! <TALK ABOUT NET EVOLUTION GRAPH>
+Our network evolution models was parameterized to mimic the network metrics found in Newman's astrophysics co-authorship network. We see agents creating distinct clusters by sub-topic affinity, and two actors acting as brokers between distinct components. Both of these broker agents have high sub-topic affinity, and relative TWD. The structural network position of these agents would garner them preferential treatment within the network, and from new individuals attempting to join the network. These nodes have been theorized by Abbasi and Hossain [-@abbasi_betweenness_2012] to mimic established researchers within departments, whose networks link across departments and school, while also introducing new agents (graduate students) to the co-authorship network.
 
-We see in the decay parameter graph that the parameter closest to the life network is not the most benificial for any agent (though it is moderatly helpful for those of average talent). Out model indicates that if researcher were to be just slightly more willing to reach outside their specific interest and sub-fields, brokerage between topics will increase for academics across the spectrum of talent. This increase in brokerage would not only help ideas travel between cliques in the larger network, but may increase the quality of the work done.
+We see in the decay parameter graph that the parameter closest to the real life network is not the most beneficial for any agent (though it is moderately helpful for those of average talent). Our model indicates that if researchers were to be just slightly more willing to reach outside their specific interest and sub-fields, brokerage between topics will increase for academics across the spectrum of talent. This increase in brokerage would not only help ideas travel between cliques in the larger network, but may increase the quality of academic pursuits.
 
 # Conclusion
 
-  In creating this model, we showcase how small changes in the co-authorship behavior of researchers can greatly impact the structure of a field. Given that the type and quality of co-authorship ties have been shown to impact research quality and output, knowing what co-authorship behaviors to encourage can help enhance the scientific pursuit.
+  In creating this model, we showcase how small changes in the co-authorship behavior of researchers can greatly impact the structure of a field. Given that the type and quality of co-authorship ties have been shown to impact research quality and output, knowing what co-authorship behaviors to encourage can help enhance the scientific pursuit. With these findings, we hope to encourage researchers to reach farther outside their immediate specialties, and explore co-authorship opportunities with colleges whose interests are dissimilar. 
 
 # References
 
