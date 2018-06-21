@@ -249,7 +249,7 @@ wid = render.d3movie(dynet,
 
 #plot(ac_net, vertex.col=auth_types, edge.col=adj_list, network.layout = "circle")
 
-return_list = list("net_list_matrix"=net_list_matrix, "net_list"=net_list, "dynet"=dynet, "wid"=wid, "author_weighted_ents"=author_weighted_ents)
+return_list = list("net_list_matrix"=net_list_matrix, "net_list"=net_list, "dynet"=dynet, "wid"=wid, "author_weighted_ents"=author_weighted_ents, "author_att"=author_att)
 if (return_sim_mat){
     return_list["sim_mat"] <- sim_matrix
 }
