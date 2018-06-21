@@ -11,7 +11,7 @@ csl: biomed-central.csl
 
 # Literature Review
 
-  Individuals have some agency regarding who they choose to associate with. While the utility of numerous weak ties has been explored[@granovetter_strength_1973], individuals will likely invest more heavily in some relationships over others. The selection of these close associates can be based on homophily[@mcpherson_birds_2001], or necessity[@lee_search_1969]. Regardless of reason, trusting relationships are understood to facilitate the transmission of resources between individuals[@coleman_social_1988].
+  Individuals have some agency regarding who they choose to associate with. While the utility of numerous weak ties has been explored[@granovetter_strength_1973], individuals will likely invest more heavily in some relationships over others. The selection of these close associates can be based on dyadic properties such as homophily[@mcpherson_birds_2001] or necessity[@lee_search_1969], or based on the potential associates' position in a broader social network [@jackson_strategic_1996, @buechel_closeness_2013]. Regardless of reason, trusting relationships are understood to facilitate the transmission of resources between individuals[@coleman_social_1988].
   One example of this exists within the co-authorship networks of academia. Co-authorship networks differ structurally across disciplines[@newman_coauthorship_2004], thus the ability for social resources to flow across these networks will also differ.
 
 # Methods
@@ -20,7 +20,7 @@ csl: biomed-central.csl
 
 # Results
 ### Model 1
-`r source("jj_model_dynamic.r")`
+`r source("../src/jj_model_dynamic.r")`
 #### Example Model with `r num_authors` authors, `r iter` iterations.
 `r wid`
 
