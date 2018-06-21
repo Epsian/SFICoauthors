@@ -69,7 +69,12 @@ emp_diff <- function(adj_mat){
     clust_diff <- abs(clust_coef - astro_clustcoef)
     avgdist_diff <- abs(avg_dist - astro_avgdist)
     
-    total_diff <- avgdeg_diff + 3*avgdist_diff + 35*clust_diff
+    # Weights for the difference score, to put the vars on the same order
+    # of magnitude
+    clust_weight <- astro_avgdeg / astro_clustcoef
+    avgdist_weight <- astro_avgdeg / astro_avgdist
+    
+    total_diff <- avgdeg_diff + avgdist_weight*avgdist_diff + clust_weight*clust_diff
     
     return(total_diff)
 }
