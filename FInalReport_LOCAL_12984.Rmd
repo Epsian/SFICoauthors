@@ -1,0 +1,66 @@
+---
+title: "Trust and Suitable Partners"
+output: html_document
+author: "Jeff Jacobs & Jared Joseph"
+date: "June 21, 2018"
+bibliography: SFI Report.bib
+csl: apa.csl
+---
+
+  Researchers tend to co-author with colleges with similar research interests, while they predominately only cite those with differing interests [@ding_scientific_2011]. In this report we test the effect on network structure when various co-authorship propensities are altered. We start with a null model resembling Newman's physics co-authorship network [-@newman_coauthorship_2004], and alter <NAMES OF PARAMETERS> to see their effect on network formation.
+  
+  By altering the propensity of simulated researchers to match with co-authors of dissimilar interests, we can model the effect on the overall disconnectedness of a particular field, and the role individuals with differing distributions of expertise have on that structure. In doing so, we explore and make quantifiable the possible benefits of higher cross-expertise collaboration in the academic sphere.
+  
+# Literature Review
+
+  Individuals have some agency regarding who they choose to associate with. While the utility of numerous weak ties has been explored [@granovetter_strength_1977], individuals will likely invest more heavily in some relationships over others. The selection of these close associates can be based on dyadic properties such as homophily [@mcpherson_birds_2001], necessity of resources [@lee_search_2014], or based on the potential associates' position in a broader social network [@jackson_strategic_1996; @buechel_dynamics_2008]. Regardless of reason, trusting relationships are understood to facilitate the transmission of resources between individuals [@coleman_social_1988].
+  
+  One example of this exists within the co-authorship networks of academia. Co-authorship networks differ structurally across disciplines [@newman_coauthorship_2004], thus the ability for social resources to flow across these networks will also differ. It has been shown that strong, direct ties between collaborators produces higher quality research, while working with colleges with similar research interests only influences research output [@gonzalez-brambila_impact_2013]. Further, betweenness centrality has shown to be a particularly good predictor of preferential treatment in a co-authorship network, as new entrants to the network approach these brokers when making their first connections [@abbasi_betweenness_2012]. We examine the effects on these metrics using the following model.
+
+# Methods
+
+  We specify the following parameters in out model: 
+  * The number of authors in the model ($N$), 
+  * The number of iterations the model will run ($T$), 
+  * The starting threshold $\sigma_0$ each agent uses to decide if another agent is similar enough in interests to co-author with (so that the individual thresholds $\sigma_i$ for each agent $i$ are equal to $\sigma_0$ at the start of the model),
+  * A decay parameter $\gamma$ indicating how quickly agents will seek out agents who are less similar in interests,
+  * The maximum number of co-authors for any one agent ($c_{max}$),
+  * The max number of times an agent can get rejected by someone before giving up on forming a link with them ($r_{max}$), and
+  * The rate parameter $\lambda$ of the exponential distribution used to determine the talent level in our 5 sub-topics, producing a talent vector $\beta_i$ for each author $i$.
+
+
+  The model proceeds as follows. At a given time $t$, we randomly allow each node $p$ to initiate a connection with another node $q$. If a node already has a partner, it is not eligible to be paired with. At time $t + 1$, each of these connections are tested for affinity (trust). If the similarity of $q$'s interests to $p$ (measured as $1-JS(\beta_p,\beta_q)$, where $JS(\dot)$ is the Jensen-Shannon distance) are above $p$'s similarity threshold $\sigma_p$, and if $q$ has not already formed $c_{max}$ other connections, then this connection is solidified as a trusting relationship and an edge is formed between $p$ and $q$. Otherwise, the connection is dropped, and $p$ ``lowers their standards'' by decaying their threshold $\sigma_p$ by a factor of $\gamma$.
+
+# Results
+### Bridge Example
+#### Example Model with 9 authors, 50 iterations.
+```{r Bridge Model, message=FALSE, warning=FALSE, include=FALSE}
+source("src/jj_model_dynamic.r")
+def_mod = run_model()
+```
+Click on the nodes to see their sub-topics!
+`r def_mod$wid`
+
+### Effect of Lowering Decay Parameter on Betweenness Centrality
+```{r Decay Lines, message=FALSE, warning=FALSE, include=FALSE}
+source("src/scatter_plots.R")
+```
+Here we see what happens if agents become more willing to co-author with people with different specialties, seperated by the 'talent' of the agent. To construct the talent metric for a given author $p$, we compute the entropy of their talent vector $H(\beta_p)$ and then multiply this entropy by the 'total talent' $\| \beta_p \|_1 = \sum_{i}(\beta_p)_i$, to produce a 'talent-weighted-diversity' measure $TWD(p) = \|  \beta_p \|_1H(\beta_p)$. We then plot the betweenness centrality of the authors with the lowest, highest, and median TWD scores, for varying levels of 'expectation lowering rates' $\gamma \in \{0.00, 0.01, \dots, 0.19, 0.20\}$. Following the literature, we would expect the most 'effective' coauthorship networks to be those in which the high-TWD authors serve as 'connectors' between subfield clusters. And thus we can read a preliminary result from the plot: that the 'optimal' rate of 'expectation lowering' -- the rate which best facilitates high-TWD authors serving as connectors -- is approximately $\gamma = 0.11$, i.e., an $11\%$ decay after each failed connection.
+
+After calibration of the model with the astrophysics coauthorship network, however, we see that astrophysicists essentially exhibit overly-high 'standards', failing to lower their similarity thresholds at a rate which would best allow the emergence of inter-subfield connectors. Expanding from calibration of the toy model with $N = 9$ to calibrating larger coauthorship networks ($N \in \{100, 200, 400, 800\}$), we find that this result continues to hold: the astrophysics coauthorship network 'matches' with networks generated by $\gamma \in [0.05,0.09]$, while the optimal $\gamma$ for uncalibrated networks remains almost identical at $0.11$.
+`r decay_line`
+
+
+# Discussion
+
+# Conclusion
+
+  In creating this model, we showcase how small changes in the co-authorship behavior of researchers can greatly impact the structure of a field. Given that the type and quality of co-authorship ties have been shown to impact research quality and output, knowing what co-authorship behaviors to encourage can help enhance the scientific pursuit.
+
+# Referances
+
+---
+nocite: | 
+  @r_core_team_r:_2017, @handcock_statnet:_2003
+...
+
