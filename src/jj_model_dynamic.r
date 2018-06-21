@@ -9,7 +9,7 @@ source('src/accept_reject.r')
 source('src/entropy_calc.r')
 source('src/choose_partner.r')
 
-run_model <- function(num_authors=9, iter=50, init_threshold=0.5, thresh_decay=0.5, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE, return_sim_mat=FALSE){
+run_model <- function(num_authors=9, iter=50, init_threshold=0.75, thresh_decay=0.1, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE, return_sim_mat=FALSE){
 
 #### Setup ####
 set.seed(43) # generates 3 triangles corresponding to 3 separate
