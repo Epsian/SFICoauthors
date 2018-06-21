@@ -222,7 +222,7 @@ dynet = networkDynamic(network.list = net_list, create.TEAs = TRUE)
 wid = render.d3movie(dynet,
                edge.lwd = 2,
                edge.col = "grey",
-               vertex.col = auth_types,
+               vertex.col = "blue",
                output.mode = 'htmlWidget')
 
 #### Static Networks ####
