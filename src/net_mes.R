@@ -2,27 +2,30 @@
 #### Data Load ####
 
 library(keyplayer)
-model_list = readRDS("data/decay_list.rds")
-
-net_list = model_list[[1]]
-dynet = net_list$dynet
-num_authors = dim(net_list_matrix_c[[1]])[1]
+model_list = readRDS("data/decay_lists.rds")
 
 #### Setup ####
 
+# What model do you want stats on?
+.modelnum = 21
+
+net_list = model_list[[.modelnum]]$net_list
+dynet = model_list[[.modelnum]]$dynet
 last_net = net_list[[length(net_list)]]
-.author_out = "data/author_att.csv"
-.gstats_out = "data/gstats_out.csv"
+.author_out = paste0("data/model_metrics/", .modelnum, "_author_att.csv")
+.gstats_out = paste0("data/model_metrics/", .modelnum, "_gstats_out.csv")
 
 #### Remove Potential Ties From Dynet ####
 
-net_list_matrix_c = lapply(net_list$net_list_matrix, FUN = function(x){
+net_list_matrix_c = lapply(model_list[[.modelnum]]$net_list_matrix, FUN = function(x){
   x[x == 1] = 0
   x[x == 2] = 0
   x[x == -1] = 0
   x[x == 3] = 1
   return(x)
 })
+
+num_authors = dim(net_list_matrix_c[[1]])[1]
 
 #### Graph Level ####
 
@@ -40,17 +43,10 @@ colnames(gstats) = c("time", "trans", "density", "avg_degree", "avg_nbet", "avg_
 
 #### Vertex Level ####
 
-top10 = ceiling(num_authors)
-test <- author_att[with(author_att,order(-talent)),]
+author_att = model_list[[.modelnum]]$author_att
 
-author_att$talent_bin = function(author_all){
-  top10 = ceiling(num_authors)
-  top10_df = author_att[with(author_att,order(-talent)),]
-}
-
-
-author_att$talent = author_weighted_ents
-author_att$talent_bin = 
+author_att$talent = model_list[[.modelnum]]$author_weighted_ents
+author_att$talent_bin = NA
 author_att$degree = degree(last_net, gmode="graph")
 author_att$kcore = kcores(last_net, mode="graph", diag= FALSE)
 author_att$avg_geo = (colSums(geodist(last_net)$gdist))/(nrow(as.sociomatrix(last_net)) - 1)

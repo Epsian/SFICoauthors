@@ -2,7 +2,7 @@
 #### Data Load ####
 source("src/jj_model_dynamic.r")
 
-decay_rates = seq(0, 1, by = .1)
+decay_rates = seq(0, .2, by = .01)
 
 # num_authors: How many authors should there be?
 # iter: How many iterations will be run?
@@ -20,6 +20,7 @@ for(i in 1:length(decay_rates)){
   
 }
 
+saveRDS(model_list, "data/decay_lists.rds")
 
 
 
