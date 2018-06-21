@@ -11,16 +11,19 @@ source('src/accept_reject.r')
 
 # How many authors should there be?
 num_authors <- 9
+
 # How many iterations will be run?
 iter <- 50
 
 # Where to output the time-sliced adjacency matrices
 adj_mats_filename <- "adj_mats.txt"
+
 # Delete if it already exists
 file.remove(adj_mats_filename)
 
 # Initialize the adjacency matrix
 adj_mat <- matrix(0L, nrow=num_authors, ncol=num_authors)
+
 # Sets all diagonal elements to -1 so no agent ever matches
 # with themselves
 diag(adj_mat) <- -1
@@ -42,6 +45,7 @@ max_coauthors <- 3
 # How many times does someone get rejected before they "take the hint"
 # and give up
 max_rejections <- 3
+
 # Matrix where M_{i,j} = number of times j rejected i
 rejection_mat <- matrix(0, nrow=num_authors, ncol=num_authors)
 
@@ -207,11 +211,7 @@ wid = render.d3movie(dynet,
                  lwd[lwd == 2] = 0
                  return(lwd * 2)
                },
-               edge.col = function(slice){
-                 col = slice%e%"weight"
-                 col[col == 2] = 0
-                 return(col)
-                 },
+               edge.col = "black",
                vertex.col = auth_types,
                output.mode = 'htmlWidget')
 
