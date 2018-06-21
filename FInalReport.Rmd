@@ -1,6 +1,8 @@
 ---
 title: "Trust and Suitable Partners"
 output: html_document
+author: "Jeff Jacobs & Jared Joseph"
+date: "June 21, 2018"
 bibliography: SFI Report.bib
 csl: apa.csl
 ---
@@ -11,7 +13,7 @@ csl: apa.csl
   
 # Literature Review
 
-  Individuals have some agency regarding who they choose to associate with. While the utility of numerous weak ties has been explored [@granovetter_strength_1973], individuals will likely invest more heavily in some relationships over others. The selection of these close associates can be based on dyadic properties such as homophily [@mcpherson_birds_2001], necessity of resources [@lee_search_2014], or based on the potential associates' position in a broader social network [@jackson_strategic_1996; @buechel_dynamics_2008]. Regardless of reason, trusting relationships are understood to facilitate the transmission of resources between individuals [@coleman_social_1988].
+  Individuals have some agency regarding who they choose to associate with. While the utility of numerous weak ties has been explored [@granovetter_strength_1977], individuals will likely invest more heavily in some relationships over others. The selection of these close associates can be based on dyadic properties such as homophily [@mcpherson_birds_2001], necessity of resources [@lee_search_2014], or based on the potential associates' position in a broader social network [@jackson_strategic_1996; @buechel_dynamics_2008]. Regardless of reason, trusting relationships are understood to facilitate the transmission of resources between individuals [@coleman_social_1988].
   
   One example of this exists within the co-authorship networks of academia. Co-authorship networks differ structurally across disciplines [@newman_coauthorship_2004], thus the ability for social resources to flow across these networks will also differ. It has been shown that strong, direct ties between collaborators produces higher quality research, while working with colleges with similar research interests only influences research output [@gonzalez-brambila_impact_2013]. Further, betweenness centrality has shown to be a particularly good predictor of preferential treatment in a co-authorship network, as new entrants to the network approach these brokers when making their first connections [@abbasi_betweenness_2012]. We examine the effects on these metrics using the following model.
 
@@ -32,13 +34,19 @@ csl: apa.csl
 # Results
 ### Bridge Example
 #### Example Model with 9 authors, 50 iterations.
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r Bridge Model, message=FALSE, warning=FALSE, include=FALSE}
 source("src/jj_model_dynamic.r")
 def_mod = run_model()
 ```
 Click on the nodes to see their sub-topics!
 `r def_mod$wid`
 
+### Effect of Lowering Decay Parameter on Betweenness Centrality
+```{r Decay Lines, message=FALSE, warning=FALSE, include=FALSE}
+source("src/scatter_plots.R")
+```
+Here we see what happens if agents become more willing to co-author with people with different specialties, seperated by the 'talent' of the agent. !!! <NEED TO DESCRIBE THE FANCY TALENT METRIC>
+`r decay_line`
 
 
 # Discussion
