@@ -2,7 +2,11 @@
 #### Data Load ####
 
 library(keyplayer)
-source("src/jj_model_dynamic.r")
+model_list = readRDS("data/decay_list.rds")
+
+net_list = model_list[[1]]
+dynet = net_list$dynet
+num_authors = dim(net_list_matrix_c[[1]])[1]
 
 #### Setup ####
 
@@ -12,7 +16,7 @@ last_net = net_list[[length(net_list)]]
 
 #### Remove Potential Ties From Dynet ####
 
-net_list_matrix_c = lapply(net_list_matrix, FUN = function(x){
+net_list_matrix_c = lapply(net_list$net_list_matrix, FUN = function(x){
   x[x == 1] = 0
   x[x == 2] = 0
   x[x == -1] = 0
@@ -22,7 +26,7 @@ net_list_matrix_c = lapply(net_list_matrix, FUN = function(x){
 
 #### Graph Level ####
 
-gstats = data.frame(time = 1:(length(net_list) + 1),
+gstats = data.frame(time = 1:(length(net_list_matrix_c) + 1),
                     trans = tSnaStats(dynet, snafun='gtrans'),
                     density = tSnaStats(dynet, snafun = "gden"),
                     avg_degree = apply(tSnaStats(dynet, snafun = "degree", gmode = "graph"), 1, mean),
@@ -30,7 +34,7 @@ gstats = data.frame(time = 1:(length(net_list) + 1),
                     avg_evc = apply(tSnaStats(dynet, snafun = "evcent", gmode = "graph", rescale = FALSE), 1, mean)
 )
 
-gstats = gstats[1:length(net_list), ]
+gstats = gstats[1:length(net_list_matrix_c), ]
 
 colnames(gstats) = c("time", "trans", "density", "avg_degree", "avg_nbet", "avg_evc")
 
