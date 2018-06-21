@@ -9,7 +9,7 @@ source('src/accept_reject.r')
 source('src/entropy_calc.r')
 source('src/choose_partner.r')
 
-run_model <- function(num_authors=9, iter=50, init_threshold=0.75, thresh_decay=0.1, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE, return_sim_mat=FALSE){
+run_model <- function(num_authors=9, iter=50, init_threshold=0.75, thresh_decay=0.1, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE, return_sim_mat=FALSE, gen_visuals=TRUE){
 
 #### Setup ####
 set.seed(43) # generates 3 triangles corresponding to 3 separate
@@ -71,7 +71,7 @@ author_weighted_ents <- author_ents * author_talent
 
 if (return_sim_mat){
     # And a pairwise similarity matrix
-    print("Computing similarities")
+    #print("Computing similarities")
     first_sims <- JS_Sim_Vector(interest_mat[1,],interest_mat[,])
     sim_matrix <- matrix(0, nrow=num_authors, ncol=num_authors)
     for (cur_author in 1:num_authors){
@@ -116,11 +116,11 @@ increment_value <- function(mat, rownum, colnum){
 deterministic_match <- function(cur_auth, other_auth, auth_types, adj_mat){
     # Check the types
     if (auth_types[cur_auth] == auth_types[other_auth]){
-        print(paste0("Author ",cur_auth," and author ",other_auth," SUCCESSFULLY coauthor!"))
+        #print(paste0("Author ",cur_auth," and author ",other_auth," SUCCESSFULLY coauthor!"))
         return(TRUE)
         
     } else {
-        print(paste0("Author ", cur_auth," and author ", other_auth," FAIL to coauthor"))
+        #print(paste0("Author ", cur_auth," and author ", other_auth," FAIL to coauthor"))
         return(FALSE)
     }
 }
@@ -140,11 +140,11 @@ net_list = list()
 
 # Time loop
 for (t in 1:iter){
-    print(paste0("****** Time t=",t))
+    #print(paste0("****** Time t=",t))
     # Loop over (shuffled) authors
     shuffled_authors <- sample(1:num_authors)
     for (cur_auth in shuffled_authors){
-        print(paste0("*** Resolving 1s for author #", cur_auth))
+        #print(paste0("*** Resolving 1s for author #", cur_auth))
         # First resolve any 1s
         unresolved <- which(adj_mat[cur_auth,] == 1)
         if (length(unresolved) > 0){
@@ -173,9 +173,10 @@ for (t in 1:iter){
     for (cur_auth in shuffled_authors){
         # Then form new links, IF this author hasn't been chosen yet
         if (any(adj_mat[cur_auth,] == 1)) {
-            print(paste0("*** Author ",cur_auth," already chosen. No new links."))
+            #print(paste0("*** Author ",cur_auth," already chosen. No new links."))
+            1+1
         } else {
-            print(paste0("*** Forming new links for author ",cur_auth))
+            #print(paste0("*** Forming new links for author ",cur_auth))
             # Candidates must have 0 with cur_auth AND not have a 1 with anyone else!
             havent_talked <- which(adj_mat[cur_auth,] == 0)
             not_talking <- cols_without_1(adj_mat)
@@ -190,7 +191,7 @@ for (t in 1:iter){
                 } else {
                     chosen_cand <- sample(candidates, 1)
                 }
-                print(paste0("Author #", cur_auth, " forming link with ",chosen_cand))
+                #print(paste0("Author #", cur_auth, " forming link with ",chosen_cand))
                 adj_mat <- set_value(adj_mat, cur_auth, chosen_cand, 1)
             } 
             #else {
@@ -199,7 +200,7 @@ for (t in 1:iter){
             #}
         }
     }
-    net_list[[t]] = print(adj_mat)
+    net_list[[t]] = adj_mat
     if (output_log){
         write(paste0("\nt = ",t,"\n"), file=adj_mats_filename, append=TRUE)
         write.table(adj_mat, file=adj_mats_filename, append=TRUE, row.names=TRUE, col.names=FALSE)
@@ -227,7 +228,8 @@ dynet = networkDynamic(network.list = net_list, create.TEAs = TRUE)
 
 #### Render HTML ####
 
-wid = render.d3movie(dynet,
+if (gen_visuals){
+    wid = render.d3movie(dynet,
                edge.lwd = 2,
                edge.col = function(slice){
                    col = slice%e%"weight"
@@ -242,6 +244,9 @@ wid = render.d3movie(dynet,
                                       "Subtopic D:", author_att$sub_d, "<br>",
                                       "Subtopic E:", author_att$sub_e, "<br>"),
                output.mode = 'htmlWidget')
+} else {
+    wid <- NULL
+}
 
 #### Static Networks ####
 
@@ -249,7 +254,7 @@ wid = render.d3movie(dynet,
 
 #plot(ac_net, vertex.col=auth_types, edge.col=adj_list, network.layout = "circle")
 
-return_list = list("net_list_matrix"=net_list_matrix, "net_list"=net_list, "dynet"=dynet, "wid"=wid, "author_weighted_ents"=author_weighted_ents, "author_att"=author_att)
+return_list = list("net_list_matrix"=net_list_matrix, "net_list"=net_list, "dynet"=dynet, "wid"=wid, "author_weighted_ents"=author_weighted_ents, "author_att"=author_att, "iter"=iter)
 if (return_sim_mat){
     return_list["sim_mat"] <- sim_matrix
 }
