@@ -7,6 +7,7 @@ library(statnet)
 
 source('accept_reject.r')
 source('entropy_calc.r')
+source('choose_partner.r')
 
 run_model <- function(num_authors=9, iter=50, init_threshold=0.5, thresh_decay=0.5, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE){
 
@@ -67,7 +68,14 @@ author_talent <- apply(interest_mat, 1, sum)
 author_weighted_ents <- author_ents * author_talent
 
 # And a pairwise similarity matrix
-sim_mat <- 
+print("Computing similarities")
+first_sims <- JS_Sim_Vector(interest_mat[1,],interest_mat[,])
+print(first_sims)
+for (cur_author in 1:num_authors){
+    cur_sims <- 0
+}
+stop()
+#sim_mat <- apply(interest_mat, 1, function(z) JSVector(z))
 
 #### Create Network ####
 

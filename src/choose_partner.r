@@ -1,25 +1,30 @@
-KLDivergence <- function(p,q){
+KL_Divergence <- function(p,q){
     # Computes the Kullback-Leibler divergence between p and q
     div <- p*log2(p/q)
     div[is.nan(div)] <- 0
     return(sum(div))
 }
 
-JSDistance <- function(p,q){
+JS_Distance <- function(p,q){
     # Computes the Jensen-Shannon distance between p and q
     # Normalize the frequencies to create a probability distribution
     p_norm <- p/sum(p)
     q_norm <- q/sum(q)
     m <- 0.5*(p_norm + q_norm)
-    divergence <- 0.5*KLDivergence(p_norm, m) + 0.5*KLDivergence(q_norm, m)
+    divergence <- 0.5*KL_Divergence(p_norm, m) + 0.5*KL_Divergence(q_norm, m)
     return(sqrt(divergence))
 }
 
-JSVector <- function(p,q_mat){
+JS_Vector <- function(p,q_mat){
     # Computes a vector of Jensen-Shannon distances between p
     # and the rows of q_mat
-    js_vec <- apply(q_mat, 1, function(z) JSDistance(p,z))
+    js_vec <- apply(q_mat, 1, function(z) JS_Distance(p,z))
     return(js_vec)
+}
+
+JS_Sim_Vector <- function(p,q_mat){
+    js_sim_vec <- apply(q_mat, 1, function(z) 1-JS_Distance(p,z))
+    return(js_sim_vec)
 }
 
 choose_partner <- function(node_num, candidates, talent_matrix){
