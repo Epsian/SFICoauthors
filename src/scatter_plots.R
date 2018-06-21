@@ -1,14 +1,60 @@
 
 #### Data Load ####
 
-library(ggplot2)
 library(plotly)
-net1 = read.csv("")
-net2 = read.csv("")
-
-gstats = gstats[,-1]
+model_metrics = readRDS("data/model_metrics.rds")
 
 #### Create Network Plots ####
+# Line graph x = decay, y = betweenness, by min, median, max betweenness centrality
+
+decay_par = seq(0, .2, by = .01)
+min_bet = as.numeric(lapply(model_metrics, FUN = function(x){
+    att = x$author_att
+    out = att$nbet[which(att$talent == min(att$talent))]
+}))
+med_bet = as.numeric(lapply(model_metrics, FUN = function(x){
+    att = x$author_att
+    out = att$nbet[which(att$talent == median(att$talent))]
+}))
+max_bet = as.numeric(lapply(model_metrics, FUN = function(x){
+    att = x$author_att
+    out = att$nbet[which(att$talent == max(att$talent))]
+}))
+
+vline <- function(x = 0, color = "red") {
+    list(
+        type = "line", 
+        y0 = 0, 
+        y1 = 1, 
+        yref = "paper",
+        x0 = x, 
+        x1 = x, 
+        line = list(color = color)
+    )
+}
+
+decay_line <- plot_ly(x = decay_par, y = min_bet, type = 'scatter', mode = 'lines', name = "Minimum") %>%
+    add_trace(y = med_bet, name = "Median", mode = "lines") %>%
+    add_trace(y = max_bet, name = "Max", mode = "lines") %>%
+    layout(title = "Lowering Your Standards", xaxis = list(title = "Decay Parameter", yaxis = list(title = "Betweenness Centrality")), shapes = list(vline(.09)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 
 
 netplot = plot_ly(gstats, x = colnames(gstats), y = 0, type = 'bar', name = 'Newman Model') %>%
