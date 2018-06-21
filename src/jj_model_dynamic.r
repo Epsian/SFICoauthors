@@ -165,6 +165,7 @@ for (t in 1:iter){
                     # But update the rejection matrix, so that we don't get
                     # infinite rejections
                     rejection_mat <- increment_value(rejection_mat, cur_auth, unresolved_ind)
+                    thresholds[cur_auth] <- thresholds[cur_auth]*(1-thresh_decay)
                 }
             }
         }
@@ -191,7 +192,11 @@ for (t in 1:iter){
                 }
                 print(paste0("Author #", cur_auth, " forming link with ",chosen_cand))
                 adj_mat <- set_value(adj_mat, cur_auth, chosen_cand, 1)
-            }
+            } 
+            #else {
+                # No candidates this round. They get impatient and lower their threshold
+                #thresholds[cur_auth] <- thresholds[cur_auth] * thresh_decay
+            #}
         }
     }
     net_list[[t]] = print(adj_mat)
@@ -239,7 +244,7 @@ wid = render.d3movie(dynet,
 
 #plot(ac_net, vertex.col=auth_types, edge.col=adj_list, network.layout = "circle")
 
-return_list = list("net_list_matrix"=net_list_matrix, "net_list"=net_list, "dynet"=dynet, "wid"=wid)
+return_list = list("net_list_matrix"=net_list_matrix, "net_list"=net_list, "dynet"=dynet, "wid"=wid, "author_weighted_ents"=author_weighted_ents)
 if (return_sim_mat){
     return_list["sim_mat"] <- sim_matrix
 }
