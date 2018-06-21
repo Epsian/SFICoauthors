@@ -229,7 +229,12 @@ dynet = networkDynamic(network.list = net_list, create.TEAs = TRUE)
 
 wid = render.d3movie(dynet,
                edge.lwd = 2,
-               edge.col = "grey",
+               edge.col = function(slice){
+                   col = slice%e%"weight"
+                   col[col == 3] = "green"
+                   col[col == 1] = "grey"
+                   return(col)
+               },
                vertex.col = "blue",
                vertex.tooltip = paste('Subtopic A:', author_att$sub_a, '<br>',
                                       "Subtopic B:", author_att$sub_b, "<br>",
