@@ -9,7 +9,7 @@ source('src/accept_reject.r')
 source('src/entropy_calc.r')
 source('src/choose_partner.r')
 
-run_model <- function(num_authors=9, iter=50, init_threshold=0.5, thresh_decay=0.5, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE){
+run_model <- function(num_authors=9, iter=50, init_threshold=0.5, thresh_decay=0.5, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE, return_sim_mat=FALSE){
 
 #### Setup ####
 
@@ -51,11 +51,11 @@ rejection_mat <- matrix(0, nrow=num_authors, ncol=num_authors)
 #### Create Node Interests ####
 
 author_att = data.frame(author_id = 1:num_authors,
-                        sub_a = floor(rexp(num_authors, .sub_curve)),
-                        sub_b = floor(rexp(num_authors, .sub_curve)),
-                        sub_c = floor(rexp(num_authors, .sub_curve)),
-                        sub_d = floor(rexp(num_authors, .sub_curve)),
-                        sub_e = floor(rexp(num_authors, .sub_curve)))
+                        sub_a = floor(rexp(num_authors, sub_curve)),
+                        sub_b = floor(rexp(num_authors, sub_curve)),
+                        sub_c = floor(rexp(num_authors, sub_curve)),
+                        sub_d = floor(rexp(num_authors, sub_curve)),
+                        sub_e = floor(rexp(num_authors, sub_curve)))
 # Convert to matrix, rows are authors columns are topics
 interest_mat <- data.matrix(author_att)
 # And delete the author_num column
@@ -67,15 +67,16 @@ author_ents <- apply(interest_mat, 1, entropy)
 author_talent <- apply(interest_mat, 1, sum)
 author_weighted_ents <- author_ents * author_talent
 
-# And a pairwise similarity matrix
-print("Computing similarities")
-first_sims <- JS_Sim_Vector(interest_mat[1,],interest_mat[,])
-print(first_sims)
-for (cur_author in 1:num_authors){
-    cur_sims <- 0
+if (return_sim_mat){
+    # And a pairwise similarity matrix
+    print("Computing similarities")
+    first_sims <- JS_Sim_Vector(interest_mat[1,],interest_mat[,])
+    sim_matrix <- matrix(0, nrow=num_authors, ncol=num_authors)
+    for (cur_author in 1:num_authors){
+        sim_matrix[cur_author,] <- JS_Sim_Vector(interest_mat[cur_author,],interest_mat[,])
+    }
+    #sim_mat <- apply(interest_mat, 1, function(z) JSVector(z))
 }
-stop()
-#sim_mat <- apply(interest_mat, 1, function(z) JSVector(z))
 
 #### Create Network ####
 
@@ -232,6 +233,9 @@ wid = render.d3movie(dynet,
 #plot(ac_net, vertex.col=auth_types, edge.col=adj_list, network.layout = "circle")
 
 return_list = list("net_list_matrix"=net_list_matrix, "net_list"=net_list, "dynet"=dynet, "wid"=wid)
+if (return_sim_mat){
+    return_list["sim_mat"] <- sim_matrix
+}
 return(return_list)
 
 } # end run_model
