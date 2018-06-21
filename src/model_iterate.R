@@ -20,7 +20,7 @@ for(i in 1:length(decay_rates)){
   
 }
 
-saveRDS(model_list, "data/decay_lists.rds")
+saveRDS(model_list, "data/decay_list.rds")
 
 
 

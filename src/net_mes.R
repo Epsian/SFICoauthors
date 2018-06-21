@@ -2,7 +2,7 @@
 #### Data Load ####
 
 library(keyplayer)
-model_list = readRDS("data/decay_lists.rds")
+model_list = readRDS("data/decay_list.rds")
 
 model_metrics = list()
 

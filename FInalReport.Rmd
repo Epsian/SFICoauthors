@@ -30,14 +30,16 @@ csl: apa.csl
   We start with a number of isolates ($\alpha$), a set number of iterations (t), and !!!. At time = t, we randomly allow each node to initiate a connection with another node. If a node already has a partner, it is not eligible to be paired with. At time = t + 1, each of these connections are tested for affinity (trust). If both nodes are of the same sub-type, the connection is solidified as a trusting relationship. If nodes are of a different sub-type, the connection is dropped, and that tie is removed from the list of eligible ties in future iterations.
 
 # Results
-### Model 1
-```{r Model 1, message=FALSE, warning=FALSE, include=FALSE}
+### Bridge Example
+#### Example Model with 9 authors, 50 iterations.
+```{r message=FALSE, warning=FALSE, include=FALSE}
 source("src/jj_model_dynamic.r")
-model1 = run_model()
+def_mod = run_model()
 ```
-#### Example Model with `r dim(model1$net_list_matrix[[1]])[1]` authors, `r length(model1$net_list)` iterations.
 Click on the nodes to see their sub-topics!
-`r model1$wid`
+`r def_mod$wid`
+
+
 
 # Discussion
 
