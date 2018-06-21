@@ -8,20 +8,27 @@ library(statnet)
 source('src/accept_reject.r')
 source('src/entropy_calc.r')
 
+run_model <- function(num_authors=9, iter=50, init_threshold=0.5, thresh_decay=0.5, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE){
+
 #### Setup ####
 
-# How many authors should there be?
-num_authors <- 9
-
-# How many iterations will be run?
-iter <- 50
+# num_authors: How many authors should there be?
+# iter: How many iterations will be run?
+# init_threshold: What similarity threshold should each author start with?
+# thresh_decay: How much should authors "lower their expectations" when they
+#               fail to match?
+# max_coauthors: Authors stop accepting new links after they have formed this many
+# max_rejections: Authors stop "talking" to other authors after this many match failures
+# sub_curve: How rare should high proficiency in a subtopic be?
 
 # Where to output the time-sliced adjacency matrices
 adj_mats_filename <- "adj_mats.txt"
 
 # Delete if it already exists
-if (file.exists(adj_mats_filename)){
-    file.remove(adj_mats_filename)
+if (output_log){
+    if (file.exists(adj_mats_filename)){
+        file.remove(adj_mats_filename)
+    }
 }
 
 # Initialize the adjacency matrix
@@ -32,28 +39,13 @@ adj_mat <- matrix(0L, nrow=num_authors, ncol=num_authors)
 diag(adj_mat) <- -1
 
 # Initialize the types of the authors (0 or 1)
-auth_types <- rbinom(n=num_authors,size=1,prob=0.5)
+#auth_types <- rbinom(n=num_authors,size=1,prob=0.5)
 
 # Initialize the authors' thresholds (all start at 0.5)
-thresholds <- rep(0.5, num_authors)
-
-# Parameter determining how quickly authors "lower their standards" if they
-# don't match with anyone
-thresh_decay <- 0.5
-
-# How many co-authors can someone have before they stop matching with
-# anyone
-max_coauthors <- 3
-
-# How many times does someone get rejected before they "take the hint"
-# and give up
-max_rejections <- 3
+thresholds <- rep(init_threshold, num_authors)
 
 # Matrix where M_{i,j} = number of times j rejected i
 rejection_mat <- matrix(0, nrow=num_authors, ncol=num_authors)
-
-# How rare should high proficiency in a subtopic be?
-.sub_curve = .4
 
 #### Create Node Interests ####
 
@@ -121,8 +113,8 @@ deterministic_match <- function(cur_auth, other_auth, auth_types, adj_mat){
 
 threshold_match <- function(cur_auth, other_auth, interest_mat, thresholds){
     # Get interest vectors
-    print("interest_mat")
-    print(interest_mat)
+    #print("interest_mat")
+    #print(interest_mat)
     cur_interest <- interest_mat[cur_auth,]
     other_interest <- interest_mat[other_auth,]
     # Get threshold
@@ -189,9 +181,11 @@ for (t in 1:iter){
         }
     }
     net_list[[t]] = print(adj_mat)
-    write(paste0("\nt = ",t,"\n"), file=adj_mats_filename, append=TRUE)
-    write.table(adj_mat, file=adj_mats_filename, append=TRUE, row.names=TRUE, col.names=FALSE)
-}
+    if (output_log){
+        write(paste0("\nt = ",t,"\n"), file=adj_mats_filename, append=TRUE)
+        write.table(adj_mat, file=adj_mats_filename, append=TRUE, row.names=TRUE, col.names=FALSE)
+    }
+} # end time loop
 
 #### Convert Networks to Dynamic Networks ####
 
@@ -225,3 +219,8 @@ wid = render.d3movie(dynet,
 #ac_net <- as.network(adj_list, matrix.type="adjacency", directed=FALSE,ignore.eval=FALSE,names.eval="weight")
 
 #plot(ac_net, vertex.col=auth_types, edge.col=adj_list, network.layout = "circle")
+
+return_list = list("net_list_matrix"=net_list_matrix, "net_list"=net_list, "dynet"=dynet, "wid"=wid)
+return(return_list)
+
+} # end run_model
