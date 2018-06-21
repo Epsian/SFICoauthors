@@ -224,6 +224,11 @@ wid = render.d3movie(dynet,
                edge.lwd = 2,
                edge.col = "grey",
                vertex.col = "blue",
+               vertex.tooltip = paste('Subtopic A:', author_att$sub_a, '<br>',
+                                      "Subtopic B:", author_att$sub_b, "<br>",
+                                      "Subtopic C:", author_att$sub_c, "<br>",
+                                      "Subtopic D:", author_att$sub_d, "<br>",
+                                      "Subtopic E:", author_att$sub_e, "<br>"),
                output.mode = 'htmlWidget')
 
 #### Static Networks ####

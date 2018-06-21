@@ -1,10 +1,8 @@
 ---
 title: "Trust and Suitable Partners"
-output: 
-  html_document: 
-    theme: cerulean
+output: html_document
 bibliography: SFI Report.bib
-csl: biomed-central.csl
+csl: apa.csl
 ---
 
   Researchers tend to co-author with colleges with similar research interests, while they predominately only cite those with differing interests[@ding_scientific_2011]. In this report we test the effect on network structure when various co-authorship propensities are altered. We start with a null model resembling Newman's physics co-authorship network [-@newman_coauthorship_2004], and alter <NAMES OF PARAMETERS> to see their effect on network formation.
@@ -18,16 +16,27 @@ csl: biomed-central.csl
 
 # Methods
 
+  We specify the following parameters in out model: 
+  the number of authors in the model ($\alpha$), 
+  the number of iterations the model will run (t), 
+  the threshold each agent uses to decide if another agent is similar enough in interests to co-author with,
+  a decay parameter indicating how quickly agents will seek out agents who are less similar in interests,
+  the maximum number of co-authors for any one agent,
+  the max number of time an agent will try to match with someone before considering them undesirable,
+  and what distribution is used to determine the talent level in our 5 sub-topics.
 
 
   We start with a number of isolates ($\alpha$), a set number of iterations (t), and !!!. At time = t, we randomly allow each node to initiate a connection with another node. If a node already has a partner, it is not eligible to be paired with. At time = t + 1, each of these connections are tested for affinity (trust). If both nodes are of the same sub-type, the connection is solidified as a trusting relationship. If nodes are of a different sub-type, the connection is dropped, and that tie is removed from the list of eligible ties in future iterations.
 
 # Results
 ### Model 1
-`r source("src/jj_model_dynamic.r")`
-`r run_model()`
-#### Example Model with `r num_authors` authors, `r iter` iterations.
-`r wid`
+```{r Model 1, echo=FALSE}
+source("src/jj_model_dynamic.r")
+model1 = run_model()
+```
+#### Example Model with `r dim(model1$net_list_matrix[[1]])[1]` authors, `r length(model1$net_list)` iterations.
+Click on the nodes to see their sub-topics!
+`r model1$wid`
 
 # Discussion
 
