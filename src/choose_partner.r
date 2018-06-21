@@ -15,6 +15,10 @@ JS_Distance <- function(p,q){
     return(sqrt(divergence))
 }
 
+JS_Sim <- function(p,q){
+    return(1-JS_Distance(p,q))
+}
+
 JS_Vector <- function(p,q_mat){
     # Computes a vector of Jensen-Shannon distances between p
     # and the rows of q_mat
