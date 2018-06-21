@@ -3,11 +3,11 @@
 # to this one. Note: we're using the Physics coauthorship network
 source('src/jj_model_dynamic.r')
 
-start_time <- Sys.time()
-run_model(num_authors = 500)
-end_time <- Sys.time()
-print(end_time - start_time)
-stop()
+#start_time <- Sys.time()
+#result <- run_model(num_authors = 100, matrix_only=TRUE, gen_visuals=FALSE)
+#end_time <- Sys.time()
+#print(end_time - start_time)
+#stop()
 
 library(igraph)
 # Load Newman data
@@ -86,7 +86,7 @@ print(decay_rates)
 
 diff_scores <- c()
 for (cur_decay in decay_rates){
-    result <- run_model(thresh_decay = cur_decay, gen_visuals=FALSE)
+    result <- run_model(num_authors=100, thresh_decay = cur_decay, gen_visuals=FALSE, matrix_only=TRUE)
     # Now compute the similarity of the final network with the empirical stats
     result_mats <- result$net_list_matrix
     final_mat <- result_mats[[result$iter]]

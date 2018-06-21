@@ -51,7 +51,7 @@ Here we see what happens if agents become more willing to co-author with people 
 
 # Discussion
 
-<TALK ABOUT NET EVOLUTION GRAPH>
+!!! <TALK ABOUT NET EVOLUTION GRAPH>
 
 We see in the decay parameter graph that the parameter closest to the life network is not the most benificial for any agent (though it is moderatly helpful for those of average talent). Out model indicates that if researcher were to be just slightly more willing to reach outside their specific interest and sub-fields, brokerage between topics will increase for academics across the spectrum of talent. This increase in brokerage would not only help ideas travel between cliques in the larger network, but may increase the quality of the work done.
 
