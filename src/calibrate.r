@@ -4,7 +4,7 @@
 source('src/jj_model_dynamic.r')
 
 start_time <- Sys.time()
-run_model(num_authors = 1000)
+run_model(num_authors = 500)
 end_time <- Sys.time()
 print(end_time - start_time)
 stop()
