@@ -9,7 +9,7 @@ source('src/accept_reject.r')
 source('src/entropy_calc.r')
 source('src/choose_partner.r')
 
-run_model <- function(num_authors=9, iter=50, init_threshold=0.75, thresh_decay=0.08, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE, return_sim_mat=FALSE, gen_visuals=TRUE){
+run_model <- function(num_authors=9, iter=50, init_threshold=0.75, thresh_decay=0.08, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE, return_sim_mat=FALSE, gen_visuals=TRUE, matrix_only=FALSE){
 
 #### Setup ####
 set.seed(43) # generates 3 triangles corresponding to 3 separate
@@ -211,22 +211,27 @@ for (t in 1:iter){
 
 # Convert matrix to network objects
 net_list_matrix = net_list
-net_list = lapply(net_list, FUN = function(x) as.network(x, matrix.type="adjacency", directed=FALSE, ignore.eval=FALSE, names.eval="weight"))
-
-# Add vertex attributes
-net_list = lapply(net_list, FUN = function(x){
-  set.network.attribute(x, "author_id", author_att$author_id)
-  set.network.attribute(x, "sub_a", author_att$sub_a)
-  set.network.attribute(x, "sub_b", author_att$sub_b)
-  set.network.attribute(x, "sub_c", author_att$sub_c)
-  set.network.attribute(x, "sub_d", author_att$sub_d)
-  set.network.attribute(x, "sub_e", author_att$sub_e)
-  })
-
-# Convert to dynamic network
-dynet = networkDynamic(network.list = net_list, create.TEAs = TRUE)
-
-#### Render HTML ####
+if (!matrix_only){
+    net_list = lapply(net_list, FUN = function(x) as.network(x, matrix.type="adjacency", directed=FALSE, ignore.eval=FALSE, names.eval="weight"))
+    
+    # Add vertex attributes
+    net_list = lapply(net_list, FUN = function(x){
+        set.network.attribute(x, "author_id", author_att$author_id)
+        set.network.attribute(x, "sub_a", author_att$sub_a)
+        set.network.attribute(x, "sub_b", author_att$sub_b)
+        set.network.attribute(x, "sub_c", author_att$sub_c)
+        set.network.attribute(x, "sub_d", author_att$sub_d)
+        set.network.attribute(x, "sub_e", author_att$sub_e)
+    })
+    
+    # Convert to dynamic network
+    dynet = networkDynamic(network.list = net_list, create.TEAs = TRUE)
+    
+    #### Render HTML ####
+} else {
+    net_list <- NULL
+    dynet <- NULL
+}
 
 if (gen_visuals){
     wid = render.d3movie(dynet,
