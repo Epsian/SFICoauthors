@@ -5,9 +5,9 @@ library(tsna)
 library(htmlwidgets)
 library(statnet)
 
-source('accept_reject.r')
-source('entropy_calc.r')
-source('choose_partner.r')
+source('src/accept_reject.r')
+source('src/entropy_calc.r')
+source('src/choose_partner.r')
 
 run_model <- function(num_authors=9, iter=50, init_threshold=0.5, thresh_decay=0.5, max_coauthors=3, max_rejections=3, sub_curve=0.4, output_log=FALSE){
 

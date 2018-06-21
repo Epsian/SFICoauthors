@@ -1,6 +1,8 @@
 ---
 title: "Trust and Suitable Partners"
-output: html_document
+output: 
+  html_document: 
+    theme: cerulean
 bibliography: SFI Report.bib
 csl: biomed-central.csl
 ---
@@ -16,17 +18,22 @@ csl: biomed-central.csl
 
 # Methods
 
+
+
   We start with a number of isolates ($\alpha$), a set number of iterations (t), and !!!. At time = t, we randomly allow each node to initiate a connection with another node. If a node already has a partner, it is not eligible to be paired with. At time = t + 1, each of these connections are tested for affinity (trust). If both nodes are of the same sub-type, the connection is solidified as a trusting relationship. If nodes are of a different sub-type, the connection is dropped, and that tie is removed from the list of eligible ties in future iterations.
 
 # Results
 ### Model 1
-`r source("../src/jj_model_dynamic.r")`
+`r source("src/jj_model_dynamic.r")`
+`r run_model()`
 #### Example Model with `r num_authors` authors, `r iter` iterations.
 `r wid`
 
 # Discussion
 
 # Conclusion
+
+  In creating this model, we showcase how small changes in the co-authorship behavior of researchers can greatly impact the structure of a field. Given that the type and quality of co-authorship ties have been shown to impact research quality and output, knowing what co-authorship behaviors to encourage can help enhance the scientific pursuit.
 
 # Referances
 
