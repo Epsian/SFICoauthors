@@ -6,6 +6,7 @@ csl: apa.csl
 ---
 
   Researchers tend to co-author with colleges with similar research interests, while they predominately only cite those with differing interests [@ding_scientific_2011]. In this report we test the effect on network structure when various co-authorship propensities are altered. We start with a null model resembling Newman's physics co-authorship network [-@newman_coauthorship_2004], and alter <NAMES OF PARAMETERS> to see their effect on network formation.
+  
   By altering the propensity of simulated researchers to match with co-authors of dissimilar interests, we can model the effect on the overall disconnectedness of a particular field, and the role individuals with differing distributions of expertise have on that structure. In doing so, we explore and make quantifiable the possible benefits of higher cross-expertise collaboration in the academic sphere.
   
 # Literature Review
