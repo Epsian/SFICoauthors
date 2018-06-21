@@ -2,6 +2,12 @@
 # finds optimal parameter settings to make our network as close as possible
 # to this one. Note: we're using the Physics coauthorship network
 
+library(igraph)
+# Load Newman data
+astro_graph <- read_graph("data/astro-ph.gml", format="gml")
+print(astro_graph)
+stop()
+
 emp_num_authors <- 52909
 emp_avg_coauthors <- 9.7
 emp_largest_component <- 0.85
@@ -16,7 +22,7 @@ emp_sim <- function(adj_mat){
     return(NULL)
 }
 
-source('jj_model_dynamic.r')
+source('src/jj_model_dynamic.r')
 
 # Let's get the decay rate that gets us closest to these stats
 #decay_rates <- seq(from=0, to=1, by=0.1)
